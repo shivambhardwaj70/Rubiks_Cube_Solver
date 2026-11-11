@@ -1,313 +1,197 @@
-#include "GenericRubiksCube.h"
 
-//
-//Given a color return it's first letter
-//
-char GenericRubiksCube::getColorLetter(COLOR color) {
-    switch (color) {
-        case COLOR:: RED:
-            return 'R';
-        case COLOR:: BLUE:
-            return 'B';
-        case COLOR:: GREEN:
-            return 'G';
-        case COLOR:: YELLOW:
-            return 'Y';
-        case COLOR:: WHITE:
-            return 'W';
-        case COLOR:: ORANGE:
-            return 'O';
-    }
-}
+#ifndef RUBIKS_CUBE_SOLVER_GENERICRUBIKSCUBE_H
+#define RUBIKS_CUBE_SOLVER_GENERICRUBIKSCUBE_H
 
-/*
- * Describe a move using an index
+#include "../bits/stdc++.h"
+
+using namespace std;
+
+/**
+ * A base class for all Rubik's Cube Model. There are various representation for Rubik's Cube.
+ * Each one has its own special ways of definitions. This class provides a shared functionality
+ * between all models.
+ * We'll benchmark all models and observe which one is better for performance.
  */
 
-string GenericRubiksCube::getMove(MOVE ind) {
-    switch (ind) {
-        case MOVE::L:
-            return "L";
-        case MOVE::LPRIME:
-            return "L'";
-        case MOVE::L2:
-            return "L2";
-        case MOVE::R:
-            return "R";
-        case MOVE::RPRIME:
-            return "R'";
-        case MOVE::R2:
-            return "R2";
-        case MOVE::F:
-            return "F";
-        case MOVE::FPRIME:
-            return "F'";
-        case MOVE::F2:
-            return "F2";
-        case MOVE::B:
-            return "B";
-        case MOVE::BPRIME:
-            return "B'";
-        case MOVE::B2:
-            return "B2";
-        case MOVE::U:
-            return "U";
-        case MOVE::UPRIME:
-            return "U'";
-        case MOVE::U2:
-            return "U2";
-        case MOVE::D:
-            return "D";
-        case MOVE::DPRIME:
-            return "D'";
-        case MOVE::D2:
-            return "D2";
+class GenericRubiksCube {
+public:
+    enum class COLOR {
+        WHITE,
+        GREEN,
+        RED,
+        BLUE,
+        ORANGE,
+        YELLOW,
+        UNKNOWN
+    };
+    enum class FACE {
+        UP,
+        LEFT,
+        FRONT,
+        RIGHT,
+        BACK,
+        DOWN
+    };
+    enum class MOVE {
+        L, LPRIME, L2,
+        R, RPRIME, R2,
+        U, UPRIME, U2,
+        D, DPRIME, D2,
+        F, FPRIME, F2,
+        B, BPRIME, B2
+    };
 
-    }
-}
+    /*
+    * Returns the color of the cell at (row, col) in face.
+    * If Rubik's Cube face is pointing at you, then the row numbering starts from the
+    * top to bottom, and column numbering starts from the left to right.
+    * The rows and columns are 0-indexed.
+    * @param Face, row, and column index
+    */
+    [[nodiscard]] virtual COLOR getColor(FACE face,int row, int col) const=0;
 
-/*
- * Perform a move operation on using a Move index.
- */
-GenericRubiksCube &GenericRubiksCube::move(MOVE ind) {
-    switch (ind) {
-        case MOVE::L:
-            return this->l();
-        case MOVE::LPRIME:
-            return this->lprime();
-        case MOVE::L2:
-            return this->l2();
-        case MOVE::R:
-            return this->r();
-        case MOVE::RPRIME:
-            return this->rprime();
-        case MOVE::R2:
-            return this->r2();
-        case MOVE::F:
-            return this->f();
-        case MOVE::FPRIME:
-            return this->fprime();
-        case MOVE::F2:
-            return this->f2();
-        case MOVE::B:
-            return this->b();
-        case MOVE::BPRIME:
-            return this->bprime();
-        case MOVE::B2:
-            return this->b2();
-        case MOVE::U:
-            return this->u();
-        case MOVE::UPRIME:
-            return this->uprime();
-        case MOVE::U2:
-            return this->u2();
-        case MOVE::D:
-            return this->d();
-        case MOVE::DPRIME:
-            return this->dprime();
-        case MOVE::D2:
-            return this->d2();
-    }
-}
 
-/*
- * Invert a move.
- */
-GenericRubiksCube &GenericRubiksCube::invert(MOVE ind) {
-    switch (ind) {
-        case MOVE::L:
-            return this->lprime();
-        case MOVE::LPRIME:
-            return this->l();
-        case MOVE::R:
-            return this->rprime();
-        case MOVE::RPRIME:
-            return this->r();
-        case MOVE::U:
-            return this->uprime();
-        case MOVE::UPRIME:
-            return this->u();
-        case MOVE::D:
-            return this->dprime();
-        case MOVE::DPRIME:
-            return this->d();
-        case MOVE::F:
-            return this->fprime();
-        case MOVE::FPRIME:
-            return this->f();
-        case MOVE::B:
-            return this->bprime();
-        case MOVE::BPRIME:
-            return this->b();
-        case MOVE::L2:
-            return this->l2();
-        case MOVE::R2:
-            return this->r2();
-        case MOVE::U2:
-            return this->u2();
-        case MOVE::B2:
-            return this->b2();
-        case MOVE::D2:
-            return this->d2();
-        case MOVE::F2:
-            return this->f2();
-    }
-}
+    /*
+    * Sets the color of the cell at (row, col) in the given face.
+    * If Rubik's Cube face is pointing at you, then the row numbering starts from the
+    * top to bottom, and column numbering starts from the left to right.
+    * The rows and columns are 0-indexed.
+    * @param Face, row, column and color.
+    */
+    virtual void setColor(FACE face, int row, int col, COLOR color)=0;
 
-void GenericRubiksCube::print() const{
-    for (int row=0;row<3;row++) {
-        for (int sp=0;sp<7;sp++) cout<<" ";
-        for (int col=0;col<3;col++) {
-            cout<<getColorLetter(getColor(FACE::UP, row, col))<<" ";
-        }
-        cout<<'\n';
-    }
-    cout<<'\n';
+    /*
+     * Returns the first letter of the given COLOR
+     * Eg: For COLOR::GREEN, it returns 'G'
+     */
+    static char getColorLetter(COLOR color);
 
-    for (int row=0;row<3;row++) {
-        for (int col=0;col<3;col++) {
-            cout<<getColorLetter(getColor(FACE::LEFT, row, col))<<" ";
-        }
-        cout<<" ";
-        for (int col=0;col<3;col++) {
-            cout<<getColorLetter(getColor(FACE::FRONT, row, col))<<" ";
-        }
-        cout<<" ";
-        for (int col=0;col<3;col++) {
-            cout<<getColorLetter(getColor(FACE::RIGHT, row, col))<<" ";
-        }
-        cout<<" ";
-        for (int col=0;col<3;col++) {
-            cout<<getColorLetter(getColor(FACE::BACK, row, col))<<" ";
-        }
-        cout<<'\n';
-    }
-    cout<<'\n';
-    for (int row=0;row<3;row++) {
-        for (int sp=0;sp<7;sp++) cout<<" ";
-        for (int col=0;col<3;col++) {
-            cout<<getColorLetter(getColor(FACE::DOWN, row, col))<<" ";
-        }
-        cout<<'\n';
-    }
-    cout<<'\n';
-}
+    /*
+     * Returns true if the Rubiks Cube is solved, otherwise returns false.
+     */
+    [[nodiscard]] virtual bool isSolved() const=0; /*
+    here nodiscard is used so that if someone doesn't uses its return
+    value it can be pointed out by the compiler
+    */
 
-vector<GenericRubiksCube::MOVE> GenericRubiksCube::randomShuffleCube(unsigned int times) {
-    vector<MOVE> moves_performed;
-    srand(time(0));
-    for (unsigned int i = 0; i < times; i++) {
-        unsigned int selectMove = (rand() % 18);
-        moves_performed.push_back(static_cast<MOVE>(selectMove));
-        this->move(static_cast<MOVE>(selectMove));
-    }
-    return moves_performed;
-}
+    /*
+     * Return the move in string format
+     */
+    static string getMove(MOVE ind);
 
-//Helper function returns string of corner
-string GenericRubiksCube::getCornerColorString(uint8_t ind) const {
-    string str = "";
+    /*
+     * Print the Rubik's Cube in Planar format.
+     *
+     * The cube is laid out as follows.
+     *
+     * The sides:
+     *    U
+     *  L F R B
+     *    D
+     *
+     * Color wise:
+     *
+     *          W W W
+     *          W W W
+     *          W W W
+     *
+     *  G G G   R R R   B B B   O O O
+     *  G G G   R R R   B B B   O O O
+     *  G G G   R R R   B B B   O O O
+     *
+     *          Y Y Y
+     *          Y Y Y
+     *          Y Y Y
+     *
+     * Row and Column Numberings:
+     * rx -> row numbering
+     * cx -> column numbering
+     * bx -> both row and column numbering
+     *
+     *             b0 c1 c2
+     *             r1  .  .
+     *             r2  .  .
+     *
+     *  b0 c1 c2   b0 c1 c2   b0 c1 c2   b0 c1 c2
+     *  r1  .  .   r1  .  .   r1  .  .   r1  .  .
+     *  r2  .  .   r2  .  .   r2  .  .   r2  .  .
+     *
+     *             b0 c1 c2
+     *             r1  .  .
+     *             r2  .  .
+     *
+     */
+    void print() const;  //it will not modify any value since const member function/ promise function
 
-    switch (ind) {
-//        UFR
-        case 0:
-            str += getColorLetter(getColor(FACE::UP, 2, 2));
-            str += getColorLetter(getColor(FACE::FRONT, 0, 2));
-            str += getColorLetter(getColor(FACE::RIGHT, 0, 0));
-            break;
+    /*
+     * Randomly shuffle the cube with 'times' moves and returns the moves performed.
+     */
+    vector<GenericRubiksCube::MOVE> randomShuffleCube(unsigned int times);
 
-//            UFL
-        case 1:
-            str += getColorLetter(getColor(FACE::UP, 2, 0));
-            str += getColorLetter(getColor(FACE::FRONT, 0, 0));
-            str += getColorLetter(getColor(FACE::LEFT, 0, 2));
-            break;
+    /*
+     * Perform moves on the Rubik Cube
+     */
+    GenericRubiksCube &move(MOVE ind);
 
-//            UBL
-        case 2:
-            str += getColorLetter(getColor(FACE::UP, 0, 0));
-            str += getColorLetter(getColor(FACE::BACK, 0, 2));
-            str += getColorLetter(getColor(FACE::LEFT, 0, 0));
-            break;
+    /*
+     * Invert a move
+     */
+    GenericRubiksCube &invert(MOVE ind);
 
-//            UBR
-        case 3:
-            str += getColorLetter(getColor(FACE::UP, 0, 2));
-            str += getColorLetter(getColor(FACE::BACK, 0, 0));
-            str += getColorLetter(getColor(FACE::RIGHT, 0, 2));
-            break;
+    /*
+    * Rotational Moves on the Rubik Cubes
+    *
+    * F, F’, F2,
+    * U, U’, U2,
+    * L, L’, L2,
+    * D, D’, D2,
+    * R, R’, R2,
+    * B, B’, B2
+    */
+    virtual GenericRubiksCube &f()=0;
 
-//            DFR
-        case 4:
-            str += getColorLetter(getColor(FACE::DOWN, 0, 2));
-            str += getColorLetter(getColor(FACE::FRONT, 2, 2));
-            str += getColorLetter(getColor(FACE::RIGHT, 2, 0));
-            break;
+    virtual GenericRubiksCube &fprime()=0;
 
-//            DFL
-        case 5:
-            str += getColorLetter(getColor(FACE::DOWN, 0, 0));
-            str += getColorLetter(getColor(FACE::FRONT, 2, 0));
-            str += getColorLetter(getColor(FACE::LEFT, 2, 2));
-            break;
+    virtual GenericRubiksCube &f2()=0;
 
-//            DBR
-        case 6:
-            str += getColorLetter(getColor(FACE::DOWN, 2, 2));
-            str += getColorLetter(getColor(FACE::BACK, 2, 0));
-            str += getColorLetter(getColor(FACE::RIGHT, 2, 2));
-            break;
+    virtual GenericRubiksCube &b()=0;
 
-//            DBL
-        case 7:
-            str += getColorLetter(getColor(FACE::DOWN, 2, 0));
-            str += getColorLetter(getColor(FACE::BACK, 2, 2));
-            str += getColorLetter(getColor(FACE::LEFT, 2, 0));
-            break;
-    }
-    return str;
-}
+    virtual GenericRubiksCube &bprime()=0;
 
-uint8_t GenericRubiksCube::getCornerIndex(uint8_t ind) const {
-    string corner = getCornerColorString(ind);
+    virtual GenericRubiksCube &b2()=0;
 
-    uint8_t ret = 0;
-    for (auto c: corner) {
-        if (c != 'W' && c != 'Y') continue;
-        if (c == 'Y') {
-            ret |= (1 << 2);
-        }
-    }
+    virtual GenericRubiksCube &u()=0;
 
-    for (auto c: corner) {
-        if (c != 'R' && c != 'O') continue;
-        if (c == 'O') {
-            ret |= (1 << 1);
-        }
-    }
+    virtual GenericRubiksCube &uprime()=0;
 
-    for (auto c: corner) {
-        if (c != 'B' && c != 'G') continue;
-        if (c == 'G') {
-            ret |= (1 << 0);
-        }
-    }
-    return ret;
-}
+    virtual GenericRubiksCube &u2()=0;
 
-uint8_t GenericRubiksCube::getCornerOrientation(uint8_t ind) const {
-    string corner = getCornerColorString(ind);
+    virtual GenericRubiksCube &d()=0;
 
-    string actual_str = "";
+    virtual GenericRubiksCube &dprime()=0;
 
-    for (auto c: corner) {
-        if (c != 'W' && c != 'Y') continue;
-        actual_str.push_back(c);
-    }
+    virtual GenericRubiksCube &d2()=0;
 
-    if (corner[1] == actual_str[0]) {
-        return 1;
-    } else if (corner[2] == actual_str[0]) {
-        return 2;
-    } else return 0;
-}
+    virtual GenericRubiksCube &l()=0;
+
+    virtual GenericRubiksCube &lprime()=0;
+
+    virtual GenericRubiksCube &l2()=0;
+
+    virtual GenericRubiksCube &r()=0;
+
+    virtual GenericRubiksCube &rprime()=0;
+
+    virtual GenericRubiksCube &r2()=0;
+
+    [[nodiscard]] string getCornerColorString(uint8_t ind) const;
+
+    [[nodiscard]] uint8_t getCornerIndex(uint8_t ind) const;
+
+    [[nodiscard]] uint8_t getCornerOrientation(uint8_t ind) const;
+
+public: virtual ~GenericRubiksCube()=default;
+
+};
+
+#endif //RUBIKS_CUBE_SOLVER_GENERICRUBIKSCUBE_H
